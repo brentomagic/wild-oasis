@@ -13,6 +13,7 @@ import PageNotFound from "./pages/PageNotFound";
 import { Navigate } from "react-router-dom";
 import GlobalStyle from "./styles/GlobalStyles";
 import AppLayout from "./ui/AppLayout";
+import { Toaster } from "react-hot-toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,6 +44,35 @@ function App() {
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </Router>
+
+      <Toaster
+        position="top-right"
+        gutter={12}
+        containerStyle={{ margin: "8px" }}
+        toastOptions={{
+          className: "",
+          duration: 3000,
+          style: {
+            color: "var(--color-white)",
+            fontSize: "1.4rem",
+          },
+          success: {
+            duration: 2000,
+            style: {
+              background: "var(--color-green-700)",
+              color: "var(--color-grey-0)",
+            },
+          },
+          error: {
+            duration: 2000,
+            style: {
+              background: "var(--color-red-700)",
+              color: "var(--color-grey-0)",
+            },
+          },
+        }}
+        reverseOrder={false}
+      />
     </QueryClientProvider>
   );
 }
