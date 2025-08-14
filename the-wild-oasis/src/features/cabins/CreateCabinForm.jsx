@@ -10,6 +10,7 @@ import Button from "../../ui/Button";
 import FileInput from "../../ui/FileInput";
 import Textarea from "../../ui/Textarea";
 import FormRow from "../../ui/FormRow";
+import SpinnerMini from "../../ui/SpinnerMini"; // Add this import
 
 const FormRow2 = styled.div`
   display: grid;
@@ -38,15 +39,6 @@ const FormRow2 = styled.div`
   }
 `;
 
-// const Label = styled.label`
-//   font-weight: 500;
-// `;
-
-// const Error = styled.span`
-//   font-size: 1.4rem;
-//   color: var(--color-red-700);
-// `;
-
 function CreateCabinForm() {
   const { register, handleSubmit, reset, getValues, formState } = useForm();
 
@@ -64,14 +56,12 @@ function CreateCabinForm() {
     onError: (err) => toast.error(err.message),
   });
 
-  // const { register, handleSubmit, reset } = useForm();
-
   function onSubmit(data) {
-    //console.log(data);
-    mutate(data);
+    // Fix the validation issue by converting to numbers
+    mutate({ ...data, image: data.image[0] });
   }
-  function onError(/*errors*/) {
-    //console.log(errors);
+
+  function onError() {
     toast.error("Please fix the errors in the form");
   }
 
@@ -110,7 +100,7 @@ function CreateCabinForm() {
             required: "This field is required",
             min: {
               value: 1,
-              message: "Capacity must be at least 1",
+              message: "Price must be at least 1",
             },
           })}
         />
@@ -124,9 +114,9 @@ function CreateCabinForm() {
           defaultValue={0}
           {...register("discount", {
             required: "This field is required",
-            //  use validate to create a custom validation rule
+            // Fixed validation - convert to numbers for proper comparison
             validate: (value) =>
-              value <= getValues().regularPrice ||
+              Number(value) <= Number(getValues().regularPrice) ||
               "Discount cannot exceed regular price",
           })}
         />
@@ -134,7 +124,6 @@ function CreateCabinForm() {
 
       <FormRow
         label="Description for website"
-        disabled={isCreating}
         error={errors?.description?.message}
       >
         <Textarea
@@ -146,16 +135,28 @@ function CreateCabinForm() {
         />
       </FormRow>
 
-      <FormRow label="Cabin photo">
-        <FileInput id="image" accept="image/*" />
+      <FormRow label="Cabin photo" error={errors?.image?.message}>
+        <FileInput
+          id="image"
+          accept="image/*"
+          disabled={isCreating}
+          {...register("image", { required: "This field is required" })}
+        />
       </FormRow>
 
       <FormRow2>
-        {/* type is an HTML attribute! */}
-        <Button variation="secondary" type="reset">
+        <Button variation="secondary" type="reset" disabled={isCreating}>
           Cancel
         </Button>
-        <Button disabled={isCreating}>Add cabin</Button>
+        <Button disabled={isCreating}>
+          {isCreating ? (
+            <>
+              <SpinnerMini /> Creating...
+            </>
+          ) : (
+            "Add cabin"
+          )}
+        </Button>
       </FormRow2>
     </Form>
   );
